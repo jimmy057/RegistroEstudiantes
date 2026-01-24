@@ -2,11 +2,12 @@ package com.example.registroestudiantes.domain.usecase
 
 import com.example.registroestudiantes.domain.model.Estudiante
 import com.example.registroestudiantes.domain.repository.EstudianteRepository
+import kotlinx.coroutines.flow.Flow
 
-class GuardarEstudianteUseCase(
+class ObtenerEstudiantesUseCase(
     private val repository: EstudianteRepository
 ) {
-    suspend operator fun invoke(estudiante: Estudiante) {
-        repository.guardar(estudiante)
+    operator fun invoke(): Flow<List<Estudiante>> {
+        return repository.obtenerTodos()
     }
 }
