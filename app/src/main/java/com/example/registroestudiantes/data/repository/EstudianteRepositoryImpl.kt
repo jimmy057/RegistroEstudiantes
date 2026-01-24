@@ -1,41 +1,46 @@
 package com.example.registroestudiantes.data.repository
 
 import com.example.registroestudiantes.data.local.dao.EstudianteDao
-import com.example.registroestudiantes.data.local.entities.EstudianteEntity
 import com.example.registroestudiantes.data.local.mapper.toDomain
 import com.example.registroestudiantes.data.local.mapper.toEntity
 import com.example.registroestudiantes.domain.model.Estudiante
 import com.example.registroestudiantes.domain.repository.EstudianteRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class EstudianteRepositoryImpl @Inject constructor(
     private val dao: EstudianteDao
 ) : EstudianteRepository {
 
-    override suspend fun obtenerTodos(): List<Estudiante> {
-        return dao.obtenerTodos().map { it.toDomain() }
+    override fun obtenerTodos(): Flow<List<Estudiante>> =
+        dao.obtenerTodos().map { list ->
+            list.map { it.toDomain() }
+        }
+
+    override suspend fun obtenerPorId(id: Int): Estudiante? =
+        dao.obtenerPorId(id)?.toDomain()
+
+    override suspend fun guardar(estudiante: Estudiante) {
+        if (estudiante.estudianteId == 0) {
+            dao.insertar(estudiante.toEntity())
+        } else {
+            dao.actualizar(estudiante.toEntity())
+        }
     }
 
-
-    override suspend fun insertar(
-        nombres: String,
-        email: String,
-        edad: Int
-    ) {
-        dao.insertar(
-            EstudianteEntity(
-                nombres = nombres,
-                email = email,
-                edad = edad
-            )
-        )
-    }
-
-    override suspend fun existeNombre(nombre: String): Boolean {
-        return dao.existeNombre(nombre) > 0
-    }
     override suspend fun eliminar(estudiante: Estudiante) {
         dao.eliminar(estudiante.toEntity())
     }
 
+    override suspend fun existeNombre(
+        nombre: String,
+        estudianteId: Int
+    ): Boolean {
+        return dao.existeNombre(nombre, estudianteId)
+    }
+
 }
+
