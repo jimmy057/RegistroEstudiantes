@@ -5,18 +5,18 @@ import com.example.registroestudiantes.domain.model.Estudiante
 
 fun EstudianteEntity.toDomain(): Estudiante {
     return Estudiante(
-        estudianteId = this.estudianteId,
-        nombres = this.nombres,
-        email = this.email,
-        edad = this.edad
+        estudianteId = estudianteId,
+        nombres = nombres,
+        email = email,
+        edad = edad
     )
 }
 
 fun Estudiante.toEntity(): EstudianteEntity {
     return EstudianteEntity(
-        estudianteId = this.estudianteId,
-        nombres = this.nombres,
-        email = this.email,
-        edad = this.edad
+        estudianteId = estudianteId,
+        nombres = nombres,
+        email = email,
+        edad = edad
     )
 }
