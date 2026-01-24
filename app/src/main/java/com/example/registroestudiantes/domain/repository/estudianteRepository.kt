@@ -1,17 +1,21 @@
 package com.example.registroestudiantes.domain.repository
 
 import com.example.registroestudiantes.domain.model.Estudiante
+import kotlinx.coroutines.flow.Flow
 
 interface EstudianteRepository {
 
-    suspend fun obtenerTodos(): List<Estudiante>
+    fun obtenerTodos(): Flow<List<Estudiante>>
 
-    suspend fun insertar(
-        nombres: String,
-        email: String,
-        edad: Int
-    )
+    suspend fun obtenerPorId(id: Int): Estudiante?
 
-    suspend fun existeNombre(nombre: String): Boolean
+    suspend fun guardar(estudiante: Estudiante)
+
     suspend fun eliminar(estudiante: Estudiante)
+
+    suspend fun existeNombre(
+        nombre: String,
+        estudianteId: Int
+    ): Boolean
+
 }
