@@ -7,113 +7,111 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.launch
 import com.example.registroestudiantes.domain.model.Estudiante
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListEstudianteScreen(
     onEditar: (Int) -> Unit,
-    onAgregar: () -> Unit,
-    onIrAsignaturas: () -> Unit,
     viewModel: ListEstudianteViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
 
-    var estudianteAEliminar by remember { mutableStateOf<Estudiante?>(null) }
+    ListEstudianteContent(
+        state = state,
+        onEditar = onEditar,
+        onEliminar = viewModel::eliminar
+    )
+}
 
+
+@Composable
+fun ListEstudianteContent(
+    state: ListEstudianteUIState,
+    onEditar: (Int) -> Unit,
+    onEliminar: (Estudiante) -> Unit
+) {
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Lista de Estudiantes") },
-                actions = {
-                    IconButton(onClick = onIrAsignaturas) {
-                        Icon(Icons.Default.List, contentDescription = "Ir a Asignaturas")
-                    }
-                }
-            )
-        },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAgregar) {
-                Icon(Icons.Default.Add, contentDescription = "Agregar estudiante")
+            FloatingActionButton(onClick = { onEditar(0) }) {
+                Icon(Icons.Default.Add, contentDescription = "Agregar")
             }
-        },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        }
     ) { padding ->
 
-        when {
-            state.isLoading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp)
+        ) {
 
-            state.error != null -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = state.error!!)
-                }
-            }
+            Text(
+                text = "Lista de Estudiantes",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
 
-            else -> {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                        .padding(16.dp)
-                ) {
-                    items(state.estudiantes) { estudiante ->
-                        EstudianteItem(
-                            estudiante = estudiante,
-                            onEditar = { onEditar(estudiante.estudianteId) },
-                            onEliminar = { estudianteAEliminar = estudiante }
-                        )
+            Spacer(Modifier.height(16.dp))
+
+            when {
+                state.isLoading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+
+                state.estudiantes.isEmpty() -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("No hay estudiantes registrados")
+                    }
+                }
+
+                else -> {
+                    LazyColumn {
+                        items(state.estudiantes) { estudiante ->
+                            EstudianteItem(
+                                estudiante = estudiante,
+                                onEditar = { onEditar(estudiante.estudianteId) },
+                                onEliminar = { onEliminar(estudiante) }
+                            )
+                        }
                     }
                 }
             }
         }
     }
+}
 
-    estudianteAEliminar?.let { estudiante ->
-        AlertDialog(
-            onDismissRequest = { estudianteAEliminar = null },
-            title = { Text("Eliminar estudiante") },
-            text = { Text("¿Deseas eliminar al estudiante '${estudiante.nombres}'?") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.onEvent(ListEstudianteUIEvent.OnEliminar(estudiante))
-                        estudianteAEliminar = null
-                        scope.launch {
-                            snackbarHostState.showSnackbar("Estudiante eliminado")
-                        }
-                    }
-                ) {
-                    Text("Eliminar")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { estudianteAEliminar = null }) {
-                    Text("Cancelar")
-                }
-            }
+@Preview(showBackground = true)
+@Composable
+fun ListEstudianteScreenPreview() {
+    MaterialTheme {
+        ListEstudianteContent(
+            state = ListEstudianteUIState(
+                isLoading = false,
+                estudiantes = listOf(
+                    Estudiante(1, "Juan", "juan@mail.com", 20),
+                    Estudiante(2, "Ana", "ana@mail.com", 22)
+                )
+            ),
+            onEditar = {},
+            onEliminar = {}
         )
     }
 }
@@ -127,7 +125,8 @@ fun EstudianteItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp)
+            .padding(vertical = 6.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
             modifier = Modifier
@@ -135,18 +134,29 @@ fun EstudianteItem(
                 .padding(12.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+
             Column {
-                Text(text = estudiante.nombres, style = MaterialTheme.typography.titleMedium)
-                Text(text = "Email: ${estudiante.email}")
+                Text(
+                    text = estudiante.nombres,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(text = estudiante.email)
                 Text(text = "Edad: ${estudiante.edad}")
             }
 
             Row {
                 IconButton(onClick = onEditar) {
-                    Icon(Icons.Default.Edit, contentDescription = "Editar")
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Editar"
+                    )
                 }
+
                 IconButton(onClick = onEliminar) {
-                    Icon(Icons.Default.Delete, contentDescription = "Eliminar")
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Eliminar"
+                    )
                 }
             }
         }
