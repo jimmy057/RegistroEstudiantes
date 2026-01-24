@@ -2,12 +2,11 @@ package com.example.registroestudiantes.presentation.tareas.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.registroestudiantes.domain.model.Estudiante
 import com.example.registroestudiantes.domain.usecase.EstudianteUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,44 +20,28 @@ class ListEstudianteViewModel @Inject constructor(
     val state: StateFlow<ListEstudianteUIState> = _state
 
     init {
-        observarEstudiantes()
+        cargarEstudiantes()
     }
 
-    private fun observarEstudiantes() {
+    private fun cargarEstudiantes() {
         viewModelScope.launch {
             try {
-                useCases.obtenerEstudiantes()
-                    .onStart {
-                        _state.update {
-                            it.copy(isLoading = true, error = null)
-                        }
-                    }
-                    .collect { lista ->
-                        _state.update {
-                            it.copy(
-                                estudiantes = lista,
-                                isLoading = false
-                            )
-                        }
-                    }
+                val lista = useCases.obtenerTodos().first()
+                _state.update { it.copy(estudiantes = lista, isLoading = false) }
             } catch (e: Exception) {
-                _state.update {
-                    it.copy(
-                        isLoading = false,
-                        error = "Error al cargar estudiantes"
-                    )
-                }
+                _state.update { it.copy(error = e.message, isLoading = false) }
             }
         }
     }
 
-    fun eliminar(estudiante: Estudiante) {
-        viewModelScope.launch {
-            try {
-                useCases.eliminar(estudiante)
-            } catch (e: Exception) {
-                _state.update {
-                    it.copy(error = "No se pudo eliminar el estudiante")
+
+    fun onEvent(event: ListEstudianteUIEvent) {
+        when (event) {
+            is ListEstudianteUIEvent.OnLoad -> cargarEstudiantes()
+            is ListEstudianteUIEvent.OnEliminar -> {
+                viewModelScope.launch {
+                    useCases.eliminar(event.estudiante)
+                    cargarEstudiantes()
                 }
             }
         }
