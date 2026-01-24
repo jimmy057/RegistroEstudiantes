@@ -18,27 +18,21 @@ import javax.inject.Singleton
 object AppModule {
 
     @Provides
-    @Singleton
-    fun provideDatabase(
-        @ApplicationContext context: Context
-    ): AppDatabase {
-        return Room.databaseBuilder(
+    fun provideDatabase(@ApplicationContext context: Context): AppDatabase =
+        Room.databaseBuilder(
             context,
             AppDatabase::class.java,
-            "estudiantes_db"
+            "estudiantes.db"
         ).build()
-    }
 
     @Provides
-    fun provideEstudianteDao(
-        db: AppDatabase
-    ): EstudianteDao = db.estudianteDao()
+    fun provideDao(db: AppDatabase): EstudianteDao =
+        db.estudianteDao()
 
     @Provides
     @Singleton
-    fun provideEstudianteRepository(
+    fun provideRepository(
         dao: EstudianteDao
-    ): EstudianteRepository {
-        return EstudianteRepositoryImpl(dao)
-    }
+    ): EstudianteRepository =
+        EstudianteRepositoryImpl(dao)
 }
