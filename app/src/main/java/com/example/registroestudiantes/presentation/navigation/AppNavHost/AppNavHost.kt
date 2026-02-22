@@ -12,6 +12,8 @@ import com.example.registroestudiantes.presentation.tareas.edit.EditEstudianteSc
 import com.example.registroestudiantes.presentation.tareas.list.ListEstudianteScreen
 import com.example.registroestudiantes.presentation.asignatura.Edit.EditAsignaturaScreen
 import com.example.registroestudiantes.presentation.asignatura.List.ListAsignaturaScreen
+import com.example.registroestudiantes.presentation.penalidad.Edit.EditPenalidadScreen
+import com.example.registroestudiantes.presentation.penalidad.List.ListPenalidadScreen
 
 @Composable
 fun AppNavHost(
@@ -34,7 +36,10 @@ fun AppNavHost(
 
         composable(
             route = Routes.Edit.route,
-            arguments = listOf(navArgument("id") { type = NavType.IntType; defaultValue = 0 })
+            arguments = listOf(navArgument("id") {
+                type = NavType.IntType
+                defaultValue = 0
+            })
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt("id") ?: 0
             EditEstudianteScreen(estudianteId = id)
@@ -49,10 +54,35 @@ fun AppNavHost(
 
         composable(
             route = Routes.EditAsignatura.route,
-            arguments = listOf(navArgument("id") { type = NavType.IntType; defaultValue = 0 })
+            arguments = listOf(navArgument("id") {
+                type = NavType.IntType
+                defaultValue = 0
+            })
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt("id") ?: 0
             EditAsignaturaScreen(asignaturaId = id)
+        }
+
+        composable(Routes.ListPenalidades.route) {
+            ListPenalidadScreen(
+                onEditar = { id ->
+                    navController.navigate(Routes.EditPenalidad.createRoute(id))
+                },
+                onAgregar = {
+                    navController.navigate(Routes.EditPenalidad.createRoute(0))
+                }
+            )
+        }
+
+        composable(
+            route = Routes.EditPenalidad.route,
+            arguments = listOf(navArgument("id") {
+                type = NavType.IntType
+                defaultValue = 0
+            })
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getInt("id") ?: 0
+            EditPenalidadScreen(penalidadId = id)
         }
     }
 }
