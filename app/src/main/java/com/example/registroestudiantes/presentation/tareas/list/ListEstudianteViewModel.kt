@@ -2,6 +2,7 @@ package com.example.registroestudiantes.presentation.tareas.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.registroestudiantes.domain.model.Estudiante
 import com.example.registroestudiantes.domain.usecase.EstudianteUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,30 +21,29 @@ class ListEstudianteViewModel @Inject constructor(
     val state: StateFlow<ListEstudianteUIState> = _state
 
     init {
-        cargarEstudiantes()
-    }
-
-    private fun cargarEstudiantes() {
         viewModelScope.launch {
-            try {
-                val lista = useCases.obtenerTodos().first()
-                _state.update { it.copy(estudiantes = lista, isLoading = false) }
-            } catch (e: Exception) {
-                _state.update { it.copy(error = e.message, isLoading = false) }
+            useCases.obtenerTodos().collect { lista ->
+                _state.update {
+                    it.copy(
+                        estudiantes = lista,
+                        isLoading = false
+                    )
+                }
             }
         }
     }
 
-
     fun onEvent(event: ListEstudianteUIEvent) {
         when (event) {
-            is ListEstudianteUIEvent.OnLoad -> cargarEstudiantes()
             is ListEstudianteUIEvent.OnEliminar -> {
-                viewModelScope.launch {
-                    useCases.eliminar(event.estudiante)
-                    cargarEstudiantes()
-                }
+                eliminar(event.estudiante)
             }
+        }
+    }
+
+    private fun eliminar(estudiante: Estudiante) {
+        viewModelScope.launch {
+            useCases.eliminar(estudiante)
         }
     }
 }

@@ -38,53 +38,65 @@ fun ListEstudianteScreen(
                 title = { Text("Lista de Estudiantes") },
                 actions = {
                     IconButton(onClick = onIrAsignaturas) {
-                        Icon(Icons.Default.List, contentDescription = "Ir a Asignaturas")
+                        Icon(
+                            imageVector = Icons.Default.List,
+                            contentDescription = "Ir a Asignaturas"
+                        )
                     }
                 }
             )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onAgregar) {
-                Icon(Icons.Default.Add, contentDescription = "Agregar estudiante")
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Agregar estudiante"
+                )
             }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
 
-        when {
-            state.isLoading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
 
-            state.error != null -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = state.error!!)
+            when {
+                state.isLoading -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center)
+                    )
                 }
-            }
 
-            else -> {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                        .padding(16.dp)
-                ) {
-                    items(state.estudiantes) { estudiante ->
-                        EstudianteItem(
-                            estudiante = estudiante,
-                            onEditar = { onEditar(estudiante.estudianteId) },
-                            onEliminar = { estudianteAEliminar = estudiante }
-                        )
+                state.error != null -> {
+                    Text(
+                        text = state.error!!,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+
+                state.estudiantes.isEmpty() -> {
+                    Text(
+                        text = "No hay estudiantes registrados",
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp)
+                    ) {
+                        items(state.estudiantes) { estudiante ->
+                            EstudianteItem(
+                                estudiante = estudiante,
+                                onEditar = { onEditar(estudiante.estudianteId) },
+                                onEliminar = { estudianteAEliminar = estudiante }
+                            )
+                        }
                     }
                 }
             }
@@ -99,8 +111,11 @@ fun ListEstudianteScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        viewModel.onEvent(ListEstudianteUIEvent.OnEliminar(estudiante))
+                        viewModel.onEvent(
+                            ListEstudianteUIEvent.OnEliminar(estudiante)
+                        )
                         estudianteAEliminar = null
+
                         scope.launch {
                             snackbarHostState.showSnackbar("Estudiante eliminado")
                         }
@@ -110,14 +125,15 @@ fun ListEstudianteScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { estudianteAEliminar = null }) {
+                TextButton(
+                    onClick = { estudianteAEliminar = null }
+                ) {
                     Text("Cancelar")
                 }
             }
         )
     }
 }
-
 @Composable
 fun EstudianteItem(
     estudiante: Estudiante,
@@ -127,26 +143,40 @@ fun EstudianteItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp)
+            .padding(vertical = 6.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
-                Text(text = estudiante.nombres, style = MaterialTheme.typography.titleMedium)
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = estudiante.nombres,
+                    style = MaterialTheme.typography.titleMedium
+                )
                 Text(text = "Email: ${estudiante.email}")
                 Text(text = "Edad: ${estudiante.edad}")
             }
 
             Row {
                 IconButton(onClick = onEditar) {
-                    Icon(Icons.Default.Edit, contentDescription = "Editar")
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Editar"
+                    )
                 }
+
                 IconButton(onClick = onEliminar) {
-                    Icon(Icons.Default.Delete, contentDescription = "Eliminar")
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Eliminar",
+                        tint = MaterialTheme.colorScheme.error
+                    )
                 }
             }
         }
