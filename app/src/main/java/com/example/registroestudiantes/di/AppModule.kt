@@ -4,11 +4,14 @@ import android.content.Context
 import androidx.room.Room
 import com.example.registroestudiantes.data.local.dao.AsignaturaDao
 import com.example.registroestudiantes.data.local.dao.EstudianteDao
+import com.example.registroestudiantes.data.local.dao.TipoPenalidadDao
 import com.example.registroestudiantes.data.local.databases.AppDatabase
 import com.example.registroestudiantes.data.repository.AsignaturaRepositoryImpl
 import com.example.registroestudiantes.data.repository.EstudianteRepositoryImpl
+import com.example.registroestudiantes.data.repository.TipoPenalidadRepositoryImpl
 import com.example.registroestudiantes.domain.repository.AsignaturaRepository
 import com.example.registroestudiantes.domain.repository.EstudianteRepository
+import com.example.registroestudiantes.domain.repository.TipoPenalidadRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,7 +22,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
-
 
     @Provides
     @Singleton
@@ -45,6 +47,11 @@ object AppModule {
         db: AppDatabase
     ): AsignaturaDao = db.asignaturaDao()
 
+    @Provides
+    fun provideTipoPenalidadDao(
+        db: AppDatabase
+    ): TipoPenalidadDao = db.tipoPenalidadDao()
+
 
     @Provides
     @Singleton
@@ -59,4 +66,11 @@ object AppModule {
         dao: AsignaturaDao
     ): AsignaturaRepository =
         AsignaturaRepositoryImpl(dao)
+
+    @Provides
+    @Singleton
+    fun provideTipoPenalidadRepository(
+        dao: TipoPenalidadDao
+    ): TipoPenalidadRepository =
+        TipoPenalidadRepositoryImpl(dao)
 }
