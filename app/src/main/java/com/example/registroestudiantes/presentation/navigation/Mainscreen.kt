@@ -1,11 +1,10 @@
 package com.example.registroestudiantes.presentation.navigation
 
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -13,35 +12,40 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.registroestudiantes.presentation.navigation.AppNavHost.AppNavHost
+import com.example.registroestudiantes.presentation.navigation.routes.Routes
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
+
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
     val menuItems = listOf(
-        DrawerItem("Estudiantes", "list_estudiantes", Icons.Default.Person),
-        DrawerItem("Asignaturas", "list_asignaturas", Icons.Default.List)
+        DrawerItem("Estudiantes", Routes.List.route, Icons.Default.Person),
+        DrawerItem("Asignaturas", Routes.ListAsignaturas.route, Icons.Default.List),
+        DrawerItem("Penalidades", Routes.ListPenalidades.route, Icons.Default.Warning)
     )
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
+
                 Text(
                     text = "Menú",
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.padding(16.dp)
                 )
+
                 Divider()
-                Spacer(modifier = Modifier.height(8.dp))
+
+                val currentRoute =
+                    navController.currentBackStackEntryAsState().value?.destination?.route
 
                 menuItems.forEach { item ->
-                    val currentRoute =
-                        navController.currentBackStackEntryAsState().value?.destination?.route
                     NavigationDrawerItem(
                         label = { Text(item.title) },
                         icon = { Icon(item.icon, contentDescription = item.title) },
@@ -49,7 +53,9 @@ fun MainScreen() {
                         onClick = {
                             navController.navigate(item.route) {
                                 launchSingleTop = true
-                                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
+                                }
                                 restoreState = true
                             }
                             scope.launch { drawerState.close() }
@@ -65,7 +71,9 @@ fun MainScreen() {
                 SmallTopAppBar(
                     title = { Text("Registro de Estudiantes") },
                     navigationIcon = {
-                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                        IconButton(onClick = {
+                            scope.launch { drawerState.open() }
+                        }) {
                             Icon(Icons.Default.List, contentDescription = "Abrir menú")
                         }
                     }
