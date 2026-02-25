@@ -13,6 +13,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.registroestudiantes.presentation.navigation.AppNavHost.AppNavHost
 import com.example.registroestudiantes.presentation.navigation.routes.Routes
+import androidx.compose.material.icons.filled.Public
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -26,7 +27,8 @@ fun MainScreen() {
     val menuItems = listOf(
         DrawerItem("Estudiantes", Routes.List.route, Icons.Default.Person),
         DrawerItem("Asignaturas", Routes.ListAsignaturas.route, Icons.Default.List),
-        DrawerItem("Penalidades", Routes.ListPenalidades.route, Icons.Default.Warning)
+        DrawerItem("Penalidades", Routes.ListPenalidades.route, Icons.Default.Warning),
+        DrawerItem("Planetas", Routes.ListPlanets.route, Icons.Default.Public)
     )
 
     ModalNavigationDrawer(
