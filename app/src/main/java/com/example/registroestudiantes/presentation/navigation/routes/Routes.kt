@@ -19,4 +19,10 @@ sealed class Routes(val route: String) {
     object EditPenalidad : Routes("edit_penalidad/{id}") {
         fun createRoute(id: Int = 0) = "edit_penalidad/$id"
     }
+
+    object ListPlanets : Routes("list_planets")
+
+    object DetailPlanet : Routes("detail_planet/{id}") {
+        fun createRoute(id: Int) = "detail_planet/$id"
+    }
 }
