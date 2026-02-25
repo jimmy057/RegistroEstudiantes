@@ -14,6 +14,8 @@ import com.example.registroestudiantes.presentation.asignatura.Edit.EditAsignatu
 import com.example.registroestudiantes.presentation.asignatura.List.ListAsignaturaScreen
 import com.example.registroestudiantes.presentation.penalidad.Edit.EditPenalidadScreen
 import com.example.registroestudiantes.presentation.penalidad.List.ListPenalidadScreen
+import com.example.registroestudiantes.presentation.planet.List.ListPlanetScreen
+import com.example.registroestudiantes.presentation.planet.Detail.DetailPlanetScreen
 
 @Composable
 fun AppNavHost(
@@ -83,6 +85,32 @@ fun AppNavHost(
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt("id") ?: 0
             EditPenalidadScreen(penalidadId = id)
+        }
+
+        composable(Routes.ListPlanets.route) {
+            ListPlanetScreen(
+                onPlanetClick = { id ->
+                    navController.navigate(
+                        Routes.DetailPlanet.createRoute(id)
+                    )
+                }
+            )
+        }
+
+        composable(
+            route = Routes.DetailPlanet.route,
+            arguments = listOf(
+                navArgument("id") {
+                    type = NavType.IntType
+                }
+            )
+        ) { backStackEntry ->
+
+            val id = backStackEntry.arguments?.getInt("id") ?: 0
+
+            DetailPlanetScreen(
+                planetId = id
+            )
         }
     }
 }
