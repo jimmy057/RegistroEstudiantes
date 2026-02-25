@@ -70,6 +70,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.compose.ui)
     debugImplementation(libs.androidx.ui.tooling)
 
     // Navigation
@@ -96,6 +97,9 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    // Coil (IMÁGENES)
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
     // Tests
     testImplementation(libs.junit)
