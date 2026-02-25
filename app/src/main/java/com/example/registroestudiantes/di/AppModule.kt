@@ -12,6 +12,13 @@ import com.example.registroestudiantes.data.repository.TipoPenalidadRepositoryIm
 import com.example.registroestudiantes.domain.repository.AsignaturaRepository
 import com.example.registroestudiantes.domain.repository.EstudianteRepository
 import com.example.registroestudiantes.domain.repository.TipoPenalidadRepository
+import com.example.registroestudiantes.data.remote.PlanetApiService
+import com.example.registroestudiantes.data.repository.PlanetRepositoryImpl
+import com.example.registroestudiantes.domain.repository.PlanetRepository
+import com.example.registroestudiantes.domain.usecase.PlanetUseCase.GetPlanetByIdUseCase
+import com.example.registroestudiantes.domain.usecase.PlanetUseCase.GetPlanetsUseCase
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -36,22 +43,17 @@ object AppModule {
             .fallbackToDestructiveMigration()
             .build()
 
+    @Provides
+    fun provideEstudianteDao(db: AppDatabase): EstudianteDao =
+        db.estudianteDao()
 
     @Provides
-    fun provideEstudianteDao(
-        db: AppDatabase
-    ): EstudianteDao = db.estudianteDao()
+    fun provideAsignaturaDao(db: AppDatabase): AsignaturaDao =
+        db.asignaturaDao()
 
     @Provides
-    fun provideAsignaturaDao(
-        db: AppDatabase
-    ): AsignaturaDao = db.asignaturaDao()
-
-    @Provides
-    fun provideTipoPenalidadDao(
-        db: AppDatabase
-    ): TipoPenalidadDao = db.tipoPenalidadDao()
-
+    fun provideTipoPenalidadDao(db: AppDatabase): TipoPenalidadDao =
+        db.tipoPenalidadDao()
 
     @Provides
     @Singleton
@@ -73,4 +75,44 @@ object AppModule {
         dao: TipoPenalidadDao
     ): TipoPenalidadRepository =
         TipoPenalidadRepositoryImpl(dao)
+
+
+    private const val BASE_URL = "https://dragonball-api.com/"
+
+    @Provides
+    @Singleton
+    fun provideRetrofit(): Retrofit =
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+    @Provides
+    @Singleton
+    fun providePlanetApiService(
+        retrofit: Retrofit
+    ): PlanetApiService =
+        retrofit.create(PlanetApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun providePlanetRepository(
+        api: PlanetApiService
+    ): PlanetRepository =
+        PlanetRepositoryImpl(api)
+
+    @Provides
+    @Singleton
+    fun provideGetPlanetsUseCase(
+        repository: PlanetRepository
+    ): GetPlanetsUseCase =
+        GetPlanetsUseCase(repository)
+
+    @Provides
+    @Singleton
+    fun provideGetPlanetByIdUseCase(
+        repository: PlanetRepository
+    ): GetPlanetByIdUseCase =
+        GetPlanetByIdUseCase(repository)
 }
+
