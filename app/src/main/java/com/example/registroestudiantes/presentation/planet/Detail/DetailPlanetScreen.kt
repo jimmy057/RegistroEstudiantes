@@ -1,6 +1,5 @@
 package com.example.registroestudiantes.presentation.planet.Detail
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -8,70 +7,66 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.rememberAsyncImagePainter
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 
 @Composable
 fun DetailPlanetScreen(
-    planetId: Int,
     viewModel: DetailPlanetViewModel = hiltViewModel()
 ) {
 
-    val state = viewModel.uiState.value
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(planetId) {
-        viewModel.loadPlanet(planetId)
-    }
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
 
-    when {
-        state.isLoading -> {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        }
+        when {
 
-        state.error != null -> {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = state.error!!)
-            }
-        }
-
-        state.planet != null -> {
-
-            val planet = state.planet!!
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-            ) {
-
-                Text(
-                    text = planet.name,
-                    style = MaterialTheme.typography.headlineMedium
+            state.isLoading -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center)
                 )
+            }
 
-                Spacer(modifier = Modifier.height(16.dp))
+            state.error != null -> {
+                Text(
+                    text = state.error ?: "Error",
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
 
-                Image(
-                    painter = rememberAsyncImagePainter(planet.image),
-                    contentDescription = planet.name,
+            state.planet != null -> {
+
+                val planet = state.planet!!
+
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(250.dp)
-                )
+                        .fillMaxSize()
+                        .padding(16.dp)
+                ) {
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    AsyncImage(
+                        model = planet.image,
+                        contentDescription = planet.name,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(250.dp)
+                    )
 
-                Text(
-                    text = planet.description,
-                    style = MaterialTheme.typography.bodyLarge
-                )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = planet.name,
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = planet.description
+                    )
+                }
             }
         }
     }
