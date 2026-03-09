@@ -5,17 +5,18 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.State
+import com.example.registroestudiantes.data.Resource.Resource
 import com.example.registroestudiantes.domain.usecase.PlanetUseCase.GetPlanetsUseCase
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 @HiltViewModel
 class ListPlanetViewModel @Inject constructor(
     private val getPlanetsUseCase: GetPlanetsUseCase
 ) : ViewModel() {
 
-    private val _uiState = mutableStateOf(ListPlanetUIState())
-    val uiState: State<ListPlanetUIState> = _uiState
+    private val _uiState = MutableStateFlow(ListPlanetUiState())
+    val uiState = _uiState.asStateFlow()
 
     init {
         onEvent(ListPlanetUIEvent.LoadPlanets)
@@ -24,9 +25,7 @@ class ListPlanetViewModel @Inject constructor(
     fun onEvent(event: ListPlanetUIEvent) {
         when (event) {
 
-            ListPlanetUIEvent.LoadPlanets -> {
-                loadPlanets()
-            }
+            is ListPlanetUIEvent.LoadPlanets -> loadPlanets()
 
             is ListPlanetUIEvent.OnPlanetClick -> {
             }
@@ -35,19 +34,26 @@ class ListPlanetViewModel @Inject constructor(
 
     private fun loadPlanets() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
 
-            try {
-                val planets = getPlanetsUseCase()
-                _uiState.value = _uiState.value.copy(
-                    planets = planets,
-                    isLoading = false
-                )
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = e.message
-                )
+            _uiState.value = ListPlanetUiState(isLoading = true)
+
+            when (val result = getPlanetsUseCase()) {
+
+                is Resource.Success -> {
+                    _uiState.value = ListPlanetUiState(
+                        planets = result.data ?: emptyList()
+                    )
+                }
+
+                is Resource.Error -> {
+                    _uiState.value = ListPlanetUiState(
+                        error = result.message ?: "Unknown error"
+                    )
+                }
+
+                is Resource.Loading -> {
+                    _uiState.value = ListPlanetUiState(isLoading = true)
+                }
             }
         }
     }
