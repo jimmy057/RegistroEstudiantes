@@ -2,16 +2,17 @@ package com.example.registroestudiantes.data.remote
 
 import com.example.registroestudiantes.data.remote.Dto.PlanetDto
 import com.example.registroestudiantes.data.remote.Dto.PlanetResponseDto
+import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
 
-interface PlanetApiService {
+interface PlanetApi {
 
-    @GET("api/planets")
-    suspend fun getPlanets(): PlanetResponseDto
+    @GET("planets")
+    suspend fun getPlanets(): Response<PlanetResponseDto>
 
-    @GET("api/planets/{id}")
+    @GET("planets/{id}")
     suspend fun getPlanetById(
         @Path("id") id: Int
-    ): PlanetDto
+    ): Response<PlanetDto>
 }
