@@ -6,24 +6,26 @@ import com.example.registroestudiantes.data.local.dao.AsignaturaDao
 import com.example.registroestudiantes.data.local.dao.EstudianteDao
 import com.example.registroestudiantes.data.local.dao.TipoPenalidadDao
 import com.example.registroestudiantes.data.local.databases.AppDatabase
+import com.example.registroestudiantes.data.remote.PlanetApi
 import com.example.registroestudiantes.data.repository.AsignaturaRepositoryImpl
 import com.example.registroestudiantes.data.repository.EstudianteRepositoryImpl
 import com.example.registroestudiantes.data.repository.TipoPenalidadRepositoryImpl
 import com.example.registroestudiantes.domain.repository.AsignaturaRepository
 import com.example.registroestudiantes.domain.repository.EstudianteRepository
 import com.example.registroestudiantes.domain.repository.TipoPenalidadRepository
-import com.example.registroestudiantes.data.remote.PlanetApiService
 import com.example.registroestudiantes.data.repository.PlanetRepositoryImpl
 import com.example.registroestudiantes.domain.repository.PlanetRepository
 import com.example.registroestudiantes.domain.usecase.PlanetUseCase.GetPlanetByIdUseCase
 import com.example.registroestudiantes.domain.usecase.PlanetUseCase.GetPlanetsUseCase
+import com.squareup.moshi.KotlinJsonAdapterFactory
+import com.squareup.moshi.Moshi
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import retrofit2.converter.moshi.MoshiConverterFactory
 import javax.inject.Singleton
 
 @Module
@@ -77,27 +79,34 @@ object AppModule {
         TipoPenalidadRepositoryImpl(dao)
 
 
-    private const val BASE_URL = "https://dragonball-api.com/"
+    private const val BASE_URL = "https://dragonball-api.com/api/"
 
     @Provides
     @Singleton
-    fun provideRetrofit(): Retrofit =
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
+    fun provideMoshi(): Moshi =
+        Moshi.Builder()
+            .add(KotlinJsonAdapterFactory())
             .build()
 
     @Provides
     @Singleton
-    fun providePlanetApiService(
+    fun provideRetrofit(moshi: Moshi): Retrofit =
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .build()
+
+    @Provides
+    @Singleton
+    fun providePlanetApi(
         retrofit: Retrofit
-    ): PlanetApiService =
-        retrofit.create(PlanetApiService::class.java)
+    ): PlanetApi =
+        retrofit.create(PlanetApi::class.java)
 
     @Provides
     @Singleton
     fun providePlanetRepository(
-        api: PlanetApiService
+        api: PlanetApi
     ): PlanetRepository =
         PlanetRepositoryImpl(api)
 
@@ -105,14 +114,12 @@ object AppModule {
     @Singleton
     fun provideGetPlanetsUseCase(
         repository: PlanetRepository
-    ): GetPlanetsUseCase =
-        GetPlanetsUseCase(repository)
+    ) = GetPlanetsUseCase(repository)
 
     @Provides
     @Singleton
     fun provideGetPlanetByIdUseCase(
         repository: PlanetRepository
-    ): GetPlanetByIdUseCase =
-        GetPlanetByIdUseCase(repository)
+    ) = GetPlanetByIdUseCase(repository)
 }
 
