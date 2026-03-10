@@ -28,41 +28,55 @@ fun AppNavHost(
         modifier = modifier
     ) {
 
+
         composable(Routes.List.route) {
             ListEstudianteScreen(
-                onEditar = { id -> navController.navigate(Routes.Edit.createRoute(id)) },
-                onAgregar = { navController.navigate(Routes.Edit.createRoute(0)) },
-                onIrAsignaturas = { navController.navigate(Routes.ListAsignaturas.route) }
+                onEditar = { id ->
+                    navController.navigate(Routes.Edit.createRoute(id))
+                },
+                onAgregar = {
+                    navController.navigate(Routes.Edit.createRoute(0))
+                },
+                onIrAsignaturas = {
+                    navController.navigate(Routes.ListAsignaturas.route)
+                }
             )
         }
 
         composable(
             route = Routes.Edit.route,
-            arguments = listOf(navArgument("id") {
-                type = NavType.IntType
-                defaultValue = 0
-            })
-        ) { backStackEntry ->
-            val id = backStackEntry.arguments?.getInt("id") ?: 0
-            EditEstudianteScreen(estudianteId = id)
+            arguments = listOf(
+                navArgument("id") {
+                    type = NavType.IntType
+                    defaultValue = 0
+                }
+            )
+        ) {
+            EditEstudianteScreen()
         }
+
 
         composable(Routes.ListAsignaturas.route) {
             ListAsignaturaScreen(
-                onEditar = { id -> navController.navigate(Routes.EditAsignatura.createRoute(id)) },
-                onAgregar = { navController.navigate(Routes.EditAsignatura.createRoute(0)) }
+                onEditar = { id ->
+                    navController.navigate(Routes.EditAsignatura.createRoute(id))
+                },
+                onAgregar = {
+                    navController.navigate(Routes.EditAsignatura.createRoute(0))
+                }
             )
         }
 
         composable(
             route = Routes.EditAsignatura.route,
-            arguments = listOf(navArgument("id") {
-                type = NavType.IntType
-                defaultValue = 0
-            })
-        ) { backStackEntry ->
-            val id = backStackEntry.arguments?.getInt("id") ?: 0
-            EditAsignaturaScreen(asignaturaId = id)
+            arguments = listOf(
+                navArgument("id") {
+                    type = NavType.IntType
+                    defaultValue = 0
+                }
+            )
+        ) {
+            EditAsignaturaScreen()
         }
 
         composable(Routes.ListPenalidades.route) {
@@ -78,14 +92,16 @@ fun AppNavHost(
 
         composable(
             route = Routes.EditPenalidad.route,
-            arguments = listOf(navArgument("id") {
-                type = NavType.IntType
-                defaultValue = 0
-            })
-        ) { backStackEntry ->
-            val id = backStackEntry.arguments?.getInt("id") ?: 0
-            EditPenalidadScreen(penalidadId = id)
+            arguments = listOf(
+                navArgument("id") {
+                    type = NavType.IntType
+                    defaultValue = 0
+                }
+            )
+        ) {
+            EditPenalidadScreen()
         }
+
 
         composable(Routes.ListPlanets.route) {
             ListPlanetScreen(
@@ -104,13 +120,8 @@ fun AppNavHost(
                     type = NavType.IntType
                 }
             )
-        ) { backStackEntry ->
-
-            val id = backStackEntry.arguments?.getInt("id") ?: 0
-
-            DetailPlanetScreen(
-                planetId = id
-            )
+        ) {
+            DetailPlanetScreen()
         }
     }
 }
